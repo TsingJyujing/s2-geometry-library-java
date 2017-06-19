@@ -26,7 +26,7 @@ import java.util.List;
  */
 public strictfp class S2PolygonTest extends GeometryTestCase {
 
-  // A set of nested loops around the point 0:0 (lat:lng).
+  // A set of nested loops around the point 0:0 (latitude:longitude).
   // Every vertex of NEAR0 is a vertex of NEAR1.
   private static final String NEAR0 = "-1:0, 0:1, 1:0, 0:-1;";
   private static final String NEAR1 = "-1:-1, -1:0, -1:1, 0:1, 1:1, 1:0, 1:-1, 0:-1;";
@@ -34,7 +34,7 @@ public strictfp class S2PolygonTest extends GeometryTestCase {
   private static final String NEAR3 = "6:-3, -3:6, -2:-2;";
   private static final String NEAR_HEMI = "0:-90, -90:0, 0:90, 90:0;";
 
-  // A set of nested loops around the point 0:180 (lat:lng).
+  // A set of nested loops around the point 0:180 (latitude:longitude).
   // Every vertex of FAR0 and FAR2 belongs to FAR1, and all
   // the loops except FAR2 are non-convex.
   private static final String FAR0 = "0:179, 1:180, 0:-179, 2:-180;";
@@ -45,7 +45,7 @@ public strictfp class S2PolygonTest extends GeometryTestCase {
   private static final String FAR3 = "-3:-178, -2:179, -3:178, 4:177, 4:-177;";
   private static final String FAR_HEMI = "0:-90, 60:90, -60:90;";
 
-  // A set of nested loops around the point -90:0 (lat:lng).
+  // A set of nested loops around the point -90:0 (latitude:longitude).
   private static final String SOUTH0a = "-90:0, -89.99:0, -89.99:0.01;";
   private static final String SOUTH0b = "-90:0, -89.99:0.02, -89.99:0.03;";
   private static final String SOUTH0c = "-90:0, -89.99:0.04, -89.99:0.05;";
@@ -305,9 +305,9 @@ public strictfp class S2PolygonTest extends GeometryTestCase {
     // Error margin since we're doing numerical computations
     double epsilon = 1e-15;
 
-    // A rectangle with (lat,lng) vertices (3,1), (3,-1), (-3,-1) and (-3,1)
+    // A rectangle with (latitude,longitude) vertices (3,1), (3,-1), (-3,-1) and (-3,1)
     String inner = "3:1, 3:-1, -3:-1, -3:1;";
-    // A larger rectangle with (lat,lng) vertices (4,2), (4,-2), (-4,-2) and
+    // A larger rectangle with (latitude,longitude) vertices (4,2), (4,-2), (-4,-2) and
     // (-4,s)
     String outer = "4:2, 4:-2, -4:-2, -4:2;";
 
