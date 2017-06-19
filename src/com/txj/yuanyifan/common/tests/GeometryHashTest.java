@@ -3,7 +3,7 @@ package com.txj.yuanyifan.common.tests;
 import com.txj.yuanyifan.common.geohash.GeometryHashConnectionLayer;
 import com.txj.yuanyifan.common.geohash.GeometryHashFinalLayer;
 import com.txj.yuanyifan.common.geohash.GeometryPoint;
-import com.txj.yuanyifan.common.textfile_operation.TextFileLineReader;
+import com.txj.yuanyifan.util.file.text.TextFileLineReader;
 
 import java.util.ArrayList;
 import java.util.List;

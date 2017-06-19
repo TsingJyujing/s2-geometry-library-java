@@ -1,7 +1,7 @@
 package com.txj.yuanyifan.common.tests;
 
 import com.txj.yuanyifan.common.frechet.GeometryFrechet;
-import com.txj.yuanyifan.common.textfile_operation.TextFileLineReader;
+import com.txj.yuanyifan.util.file.text.TextFileLineReader;
 import com.txj.yuanyifan.common.frechet.SearchResult;
 import com.txj.yuanyifan.common.geohash.GeometryPoint;
 

@@ -1,4 +1,4 @@
-package com.zjtj.yuanyifan.common.textfile_operation;
+package com.txj.yuanyifan.util.file.text;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

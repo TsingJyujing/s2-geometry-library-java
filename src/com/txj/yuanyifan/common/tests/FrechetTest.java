@@ -2,7 +2,7 @@ package com.txj.yuanyifan.common.tests;
 import com.txj.yuanyifan.common.frechet.GeometryFrechet;
 import com.txj.yuanyifan.common.frechet.SearchResult;
 import com.txj.yuanyifan.common.geohash.GeometryPoint;
-import com.txj.yuanyifan.util.textfile.TextFileLineReader;
+import com.txj.yuanyifan.util.file.text.TextFileLineReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,9 +63,9 @@ public class FrechetTest {
         }
     }
     
-    private static List<GeometryPoint<Double>> import_data(String FN){
+    private static List<GeometryPoint<Double>> import_data(String filename){
         List<GeometryPoint<Double>> returnlist= new ArrayList<GeometryPoint<Double>>();
-        TextFileLineReader read_obj = new TextFileLineReader(FN);
+        TextFileLineReader read_obj = new TextFileLineReader(filename);
         while(true){
             String line_read = read_obj.line_read();
             if (line_read==null){
