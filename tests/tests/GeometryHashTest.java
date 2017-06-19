@@ -1,11 +1,10 @@
-package com.txj.yuanyifan.common.tests;
+package tests;
 
 import com.txj.yuanyifan.common.geohash.GeometryHashConnectionLayer;
 import com.txj.yuanyifan.common.geohash.GeometryHashFinalLayer;
 import com.txj.yuanyifan.common.geohash.GeometryPoint;
-import com.txj.yuanyifan.util.file.text.TextFileLineReader;
+import com.txj.yuanyifan.util.file.text.GPSFileIO;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,13 +22,13 @@ public class GeometryHashTest {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        //test_Point();
-        test_Map();
-        speed_testing(10000);
-        //speed_testing_fl(10000);
+        //testPoint();
+        testMap();
+        speedTesting(10000);
+        //speedTestingFlip(10000);
     }
     
-    public static void test_Point(){
+    public static void testPoint(){
         GeometryPoint<Long> TestPoint = new GeometryPoint<Long>(105.476927,35.064192,Long.valueOf(1));
         long acc = 8192;
         System.out.println(TestPoint.geohashcode(acc));
@@ -40,11 +39,11 @@ public class GeometryHashTest {
         }
     }
     
-    public static void test_Map() throws Exception {
-        List<GeometryPoint<Long>> rand = import_data(major_dir + "rand_data.csv");
-        List<GeometryPoint<Long>> comp = import_data(major_dir + "compare_data.csv");
+    public static void testMap() throws Exception {
+        List<GeometryPoint<Long>> rand = GPSFileIO.importFileLong(major_dir + "rand_data.csv");
+        List<GeometryPoint<Long>> comp = GPSFileIO.importFileLong(major_dir + "compare_data.csv");
         GeometryHashConnectionLayer<Long> Map_raw = new GeometryHashConnectionLayer<Long>(first_layer_para,final_layer_para);
-        Map_raw.insert(import_data(major_dir + "raw_data.csv"));
+        Map_raw.insert(GPSFileIO.importFileLong(major_dir + "raw_data.csv"));
         assert(rand.size()==comp.size());
         for(int i = 0; i<rand.size() ; ++i){
             GeometryPoint<Long> pn_get = Map_raw.searchNearestPoint(rand.get(i));
@@ -60,11 +59,11 @@ public class GeometryHashTest {
         
     }
     
-    public static void speed_testing(int times) throws Exception{
-        List<GeometryPoint<Long>> rand = import_data(major_dir + "rand_data.csv");
-        List<GeometryPoint<Long>> comp = import_data(major_dir + "compare_data.csv");
+    public static void speedTesting(int times) throws Exception{
+        List<GeometryPoint<Long>> rand = GPSFileIO.importFileLong(major_dir + "rand_data.csv");
+        List<GeometryPoint<Long>> comp = GPSFileIO.importFileLong(major_dir + "compare_data.csv");
         GeometryHashConnectionLayer<Long> Map_raw = new GeometryHashConnectionLayer<Long>(first_layer_para,final_layer_para);
-        Map_raw.insert(import_data(major_dir + "raw_data.csv"));
+        Map_raw.insert(GPSFileIO.importFileLong(major_dir + "raw_data.csv"));
         assert(rand.size()==comp.size());
         for(int i = 0; i<times ; ++i){
             int index = i % rand.size();
@@ -72,11 +71,11 @@ public class GeometryHashTest {
         }
     }
     
-    public static void speed_testing_fl(int times) throws Exception{
-        List<GeometryPoint<Long>> rand = import_data(major_dir + "rand_data.csv");
-        List<GeometryPoint<Long>> comp = import_data(major_dir + "compare_data.csv");
+    public static void speedTestingFlip(int times) throws Exception{
+        List<GeometryPoint<Long>> rand = GPSFileIO.importFileLong(major_dir + "rand_data.csv");
+        List<GeometryPoint<Long>> comp = GPSFileIO.importFileLong(major_dir + "compare_data.csv");
         GeometryHashFinalLayer<Long> Map_raw = new GeometryHashFinalLayer<Long>(final_layer_para);
-        Map_raw.insert(import_data(major_dir + "raw_data.csv"));
+        Map_raw.insert(GPSFileIO.importFileLong(major_dir + "raw_data.csv"));
         assert(rand.size()==comp.size());
         for(int i = 0; i<times ; ++i){
             int index = i % rand.size();
@@ -84,22 +83,5 @@ public class GeometryHashTest {
         }
     }
     
-    private static List<GeometryPoint<Long>> import_data(String FN){
-        List<GeometryPoint<Long>> returnlist= new ArrayList<GeometryPoint<Long>>();
-        TextFileLineReader read_obj = new TextFileLineReader(FN);
-        while(true){
-            String line_read = read_obj.line_read();
-            if (line_read==null){
-                break;
-            }
-            String[] line_split = line_read.split(",");
 
-            returnlist.add(new GeometryPoint<Long>(
-                    Double.valueOf(line_split[0]),
-                    Double.valueOf(line_split[1]),
-                    (Long)Math.round(Double.valueOf(line_split[2]))
-            ));
-        }
-        return returnlist;
-    }
 }

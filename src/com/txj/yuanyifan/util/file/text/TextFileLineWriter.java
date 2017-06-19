@@ -1,6 +1,7 @@
 package com.txj.yuanyifan.util.file.text;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.FileWriter;
 
 /**
@@ -10,22 +11,22 @@ import java.io.FileWriter;
  Usage: 
  Firstly, new a object  TextFileLineWriter and initial it by your filename:
  	TextFileLineWriter FWL = new TextFileLineWriter(FileName);
- Secondly, the function in this object str_write to write a String.
+ Secondly, the function in this object write to write a String.
   For example:
-  FWL.str_write("This is a test!\r\n");
+  FWL.write("This is a test!\r\n");
  	You have to use "\r\n" in Win to shift a new line.
  Last but not least:
- 	You have to free file before terminating your program like this:
- 	FWL.free();
+ 	You have to close file before terminating your program like this:
+ 	FWL.close();
  Have fun!
  * 
  */
-public class TextFileLineWriter {
+public class TextFileLineWriter implements Closeable{
     
-    private FileWriter fp = null;
-    private BufferedWriter bw = null;
-    private int Flag_Loaded = 0;
-    public boolean silence = false;
+    private FileWriter fileWriter = null;
+    private BufferedWriter bufferWriter = null;
+    private int flagLoaded = 0;
+    public boolean isSilence = false;
     
     /**
      * initialization
@@ -34,27 +35,27 @@ public class TextFileLineWriter {
     
     /**
      * initialization
-     * @param FileName
+     * @param filename
      */
-    public TextFileLineWriter(String FileName){
-        load_file(FileName);
+    public TextFileLineWriter(String filename){
+        loadFile(filename);
     }
     
     /**
      * Load file manuelly
-     * @param FileName
+     * @param filename
      */
-    public void load_file(String FileName){
+    public void loadFile(String filename){
         try{
-            if (Flag_Loaded==1){
-                free();
+            if (flagLoaded ==1){
+                close();
             }else{
-                fp = new FileWriter(FileName);
-                bw = new BufferedWriter(fp);
-                Flag_Loaded = 1;
+                fileWriter = new FileWriter(filename);
+                bufferWriter = new BufferedWriter(fileWriter);
+                flagLoaded = 1;
             }
         }catch(Exception e) {
-           if (!silence){
+           if (!isSilence){
                 System.out.println("Can't load file.");
                 e.printStackTrace();
             }
@@ -63,32 +64,49 @@ public class TextFileLineWriter {
     
     /**
      * Write given str into file
-     * @param StrWrite
+     * @param stringToWrite
      */
-    public void str_write(String StrWrite){
+    public void write(String stringToWrite){
         try{
-            bw.write(StrWrite,0,StrWrite.length());
+            bufferWriter.write(stringToWrite,0,stringToWrite.length());
         }catch(Exception e) {
-            if (!silence){
+            if (!isSilence){
                 System.out.println("Can't write file.");
                 e.printStackTrace();
             }
         }
     }
-    
+
+    /**
+     * Write given str into file
+     * @param stringToWrite
+     */
+    public void writeln(String stringToWrite){
+        try{
+            bufferWriter.write(stringToWrite,0,stringToWrite.length());
+            bufferWriter.write("\n");
+        }catch(Exception e) {
+            if (!isSilence){
+                System.out.println("Can't write file.");
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * Free file while finalize
      */
-    public void free(){
+    @Override
+    public void close(){
         try {
-            if (Flag_Loaded==1){
-                bw.close();
-                fp.close();
-                Flag_Loaded = 0;
+            if (flagLoaded ==1){
+                bufferWriter.close();
+                fileWriter.close();
+                flagLoaded = 0;
             }
         } catch (Exception e) {
-            if (!silence){
-                System.out.println("Can't free file.");
+            if (!isSilence){
+                System.out.println("Can't close file.");
                 e.printStackTrace();
             }
         }
@@ -96,7 +114,8 @@ public class TextFileLineWriter {
     
     @Override
     protected void finalize() throws Throwable{
-        free();
+        close();
         super.finalize();
     }
+
 }
