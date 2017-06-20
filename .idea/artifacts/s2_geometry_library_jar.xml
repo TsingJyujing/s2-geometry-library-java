@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="s2_geometry_library:jar">
+    <output-path>$PROJECT_DIR$/out</output-path>
+    <root id="archive" name="libgeo.jar">
+      <element id="module-output" name="s2_geometry_library" />
+    </root>
+  </artifact>
+</component>
