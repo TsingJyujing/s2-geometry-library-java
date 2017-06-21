@@ -1,36 +1,54 @@
 package com.txj.yuanyifan.common.heatmap;
 
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by YuanYifan on 2017/6/20.
+ * Created by Yuan Yifan on 2017/6/20.
  */
-public class HeatMap implements java.io.Serializable {
-    long accuracy;
+public class HeatMap implements java.io.Serializable, Cloneable{
+    private long accuracy;
 
+    /**
+     * @return Accuracy
+     */
     public long getAccuracy() {
         return accuracy;
     }
 
+    /**
+     * @param acc Accuracy
+     */
     public HeatMap(long acc) {
         accuracy = acc;
     }
 
+    /**
+     * @param gpsInfo A matrix which each row is [longitude,latitude,heat]
+     * @param acc     Accuracy
+     */
     public HeatMap(double[][] gpsInfo, long acc) {
         accuracy = acc;
         append(gpsInfo);
     }
 
-    HashMap<HeatPoint<Integer>, Double> hMap = new HashMap<>();
+    /**
+     * Heat map data stores
+     */
+    private HashMap<HeatPoint<Integer>, Double> hMap = new HashMap<>();
 
+    /**
+     * @return A hash-map which records heat
+     */
     public HashMap<HeatPoint<Integer>, Double> getHeatMap() {
         return hMap;
     }
 
+    /**
+     * @param gpsInfo A matrix which each row is [longitude,latitude,heat] to
+     */
     public void append(double[][] gpsInfo) {
         for (double[] pointInfo : gpsInfo) {
             assert pointInfo.length == 3;
@@ -43,48 +61,112 @@ public class HeatMap implements java.io.Serializable {
         }
     }
 
+
+    /**
+     * @param longitudeSearch longitude to search
+     * @param latitudeSearch  latitude to search
+     * @return search result
+     */
     public double apply(double longitudeSearch, double latitudeSearch) {
-        HeatPoint<Integer> heatPointSearch
-                = new HeatPoint<Integer>(longitudeSearch, latitudeSearch, accuracy);
-        if (getHeatMap().containsKey(heatPointSearch)) {
-            return getHeatMap().get(heatPointSearch);
-        } else {
-            return 0.0f;
-        }
+        return apply(new HeatPoint<Integer>(longitudeSearch, latitudeSearch, accuracy));
     }
 
+    /**
+     * @param heatPointInput Point to search
+     * @return search result
+     */
     public double apply(HeatPoint heatPointInput) {
-        HeatPoint<Integer> heatPointSearch
-                = new HeatPoint<Integer>(
-                heatPointInput.longitude,
-                heatPointInput.latitude,
-                accuracy
-        );
-        if (getHeatMap().containsKey(heatPointSearch)) {
-            return getHeatMap().get(heatPointSearch);
+        assert heatPointInput.getAccuracy()==getAccuracy();
+        if (getHeatMap().containsKey(heatPointInput)) {
+            return getHeatMap().get(heatPointInput);
         } else {
             return 0.0f;
         }
     }
 
 
-    public int unionSize(HeatMap hm) {
-        Set<HeatPoint<Integer>> objSet = hm.getHeatMap().keySet();
-        objSet.retainAll(getHeatMap().keySet());
+    /**
+     * @param map Another heat-map
+     * @return Points count of the intersection of two maps
+     */
+    public int intersection(HeatMap map) {
+        return intersection(this, map);
+    }
+
+    /**
+     * @param map1 heat-map 1
+     * @param map2 heat-map 2
+     * @return Points count of the intersection of two maps
+     */
+    public static int intersection(HeatMap map1, HeatMap map2) {
+        Set<HeatPoint<Integer>> objSet = map1.getHeatMap().keySet();
+        objSet.retainAll(map2.getHeatMap().keySet());
         return objSet.size();
     }
 
-    public double innerProduct(HeatMap hm) {
-        Set<HeatPoint<Integer>> objSet = hm.getHeatMap().keySet();
-        objSet.retainAll(getHeatMap().keySet());
+    /**
+     * @param map Another heat-map
+     * @return Inner product of two heat-maps
+     */
+    public double innerProduct(HeatMap map) {
+        return innerProduct(this, map);
+    }
+
+    /**
+     * @param map1 heat-map 1
+     * @param map2 heat-map 2
+     * @return Inner product of two heat-maps
+     */
+    public static double innerProduct(HeatMap map1, HeatMap map2) {
+        Set<HeatPoint<Integer>> objSet = map1.getHeatMap().keySet();
+        objSet.retainAll(map2.getHeatMap().keySet());
         double sumIP = 0;
         for (HeatPoint<Integer> gp : objSet) {
-            sumIP += getHeatMap().get(gp) * hm.getHeatMap().get(gp);
+            sumIP += map2.getHeatMap().get(gp) * map1.getHeatMap().get(gp);
         }
         return sumIP;
     }
 
-    public double modulus() {
+    /**
+     * @param map map to merge
+     */
+    public void merge(HeatMap map) {
+        assert getAccuracy() == map.getAccuracy();
+        Iterator<Map.Entry<HeatPoint<Integer>, Double>> iter = map.getHeatMap().entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<HeatPoint<Integer>, Double> entry = iter.next();
+            getHeatMap().put(entry.getKey(), apply(entry.getKey()) + entry.getValue());
+        }
+    }
+
+    /**
+     * @param map1 heat map 1
+     * @param map2 heat map 2
+     * @return Merged map
+     * @throws CloneNotSupportedException
+     */
+    @Deprecated
+    public static HeatMap merge(HeatMap map1, HeatMap map2) throws CloneNotSupportedException{
+        HeatMap mapRet = (HeatMap) map1.clone();
+        mapRet.merge(map2);
+        return mapRet;
+    }
+
+    /**
+     * @return Cloned Object
+     * @throws CloneNotSupportedException
+     */
+    @Deprecated
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        HeatMap ret = (HeatMap) super.clone();
+        ret.hMap = (HashMap<HeatPoint<Integer>, Double>) ret.hMap.clone();
+        return ret;
+    }
+    /**
+     * @return Norm 2 of heatmap
+     */
+    public double norm() {
         double sum = 0;
         for (double val : getHeatMap().values()) {
             sum += val * val;
@@ -92,7 +174,11 @@ public class HeatMap implements java.io.Serializable {
         return sum;
     }
 
-    public double modulus(int n) {
+    /**
+     * @param n Norm N
+     * @return Norm N value
+     */
+    public double norm(int n) {
         double sum = 0;
         for (double val : getHeatMap().values()) {
             sum += Math.abs(Math.pow(val, n));
@@ -100,22 +186,24 @@ public class HeatMap implements java.io.Serializable {
         return sum;
     }
 
+    /**
+     * @return export heat matrix which row is [longitude,latitude,heat]
+     */
     public double[][] exportMatrix() {
         double[][] sparse_coo = new double[hMap.size()][3];
-        Iterator iter = hMap.entrySet().iterator();
-        int i = 0;
-        while (iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            HeatPoint<Integer> key = (HeatPoint<Integer>) entry.getKey();
-            Double val = (Double) entry.getValue();
-            sparse_coo[i][0] = key.longitude;
-            sparse_coo[i][1] = key.latitude;
-            sparse_coo[i][2] = val;
-            i++;
+        Iterator<Map.Entry<HeatPoint<Integer>, Double>> iter = hMap.entrySet().iterator();
+        for (int i = 0; iter.hasNext(); i++) {
+            Map.Entry<HeatPoint<Integer>, Double> entry = iter.next();
+            sparse_coo[i][0] = entry.getKey().longitude;
+            sparse_coo[i][1] = entry.getKey().latitude;
+            sparse_coo[i][2] = entry.getValue();
         }
         return sparse_coo;
     }
 
+    /**
+     * Print heat-map
+     */
     public void display() {
         for (HeatPoint<Integer> gp : getHeatMap().keySet()) {
             System.out.printf("%s --> %s\n", gp.toString(), getHeatMap().get(gp).toString());
